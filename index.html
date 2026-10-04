@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tiệm Cá Viên Chiên Sinh Viên - HD Edition</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0f172a;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            max-width: 430px;
+            max-height: 920px;
+            background-color: #1e293b;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #ea580c, #c2410c);
+            padding: 8px 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+            color: #fff;
+            flex-shrink: 0;
+            z-index: 2;
+        }
+        #stats {
+            display: flex;
+            justify-content: space-around;
+            background-color: #0f766e;
+            padding: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #f8fafc;
+            flex-shrink: 0;
+            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2);
+        }
+        #story-box {
+            background-color: #334155;
+            padding: 6px 10px;
+            font-size: 10.5px;
+            line-height: 1.3;
+            min-height: 38px;
+            border-bottom: 2px solid #0284c7;
+            color: #f1f5f9;
+            flex-shrink: 0;
+        }
+        canvas {
+            background: #000;
+            touch-action: none;
+            display: block;
+            width: 100%;
+            flex-grow: 1;
+        }
+        #controls {
+            padding: 8px;
+            background-color: #0f172a;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            flex-shrink: 0;
+            border-top: 2px solid #334155;
+        }
+        .btn {
+            background: linear-gradient(to bottom, #ef4444, #dc2626);
+            color: white;
+            border: 1px solid #fca5a5;
+            padding: 10px 6px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 3px #991b1b;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px #991b1b;
+        }
+        .btn-full {
+            grid-column: span 2;
+        }
+        .btn-serve {
+            background: linear-gradient(to bottom, #22c55e, #16a34a);
+            border-color: #86efac;
+            box-shadow: 0 3px #15803d;
+            font-size: 13px;
+            padding: 12px;
+        }
+
+        #intro-modal, #night-modal, #debt-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.96);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 10;
+            text-align: center;
+        }
+        #intro-modal h2, #night-modal h2, #debt-modal h2 {
+            color: #facc15;
+            margin-bottom: 10px;
+            font-size: 17px;
+        }
+        #intro-modal p, #night-modal p, #debt-modal p {
+            font-size: 12px;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            color: #cbd5e1;
+        }
+        .btn-start {
+            background: linear-gradient(to bottom, #f97316, #ea580c);
+            box-shadow: 0 3px #c2410c;
+            padding: 10px 20px;
+            font-size: 13px;
+            border-radius: 8px;
+            color: white;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #auto-banner {
+            position: absolute;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 88%;
+            background: rgba(15, 23, 42, 0.92);
+            border: 1px solid #38bdf8;
+            border-radius: 20px;
+            padding: 8px 14px;
+            font-size: 11px;
+            color: #f8fafc;
+            text-align: center;
+            z-index: 8;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        #auto-banner.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+
+        .clock-badge {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 3px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            color: #facc15;
+        }
+
+        .old-food-badge {
+            color: #ef4444;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="intro-modal">
+        <h2>🌅 TIỆM CÁ VIÊN ULTRA HD</h2>
+        <p>
+            "Nhìn hóa đơn học phí gửi về, lòng mình chùng xuống... Đêm đó, mình viết đơn xin tạm hoãn học tập.<br><br>
+            Rút <b>500.000đ</b> tiền tiết kiệm còn lại, mình đẩy xe ra ngã tư ngõ trường học.<br><br>
+            💡 <b>MẸO BÁN HÀNG:</b> Bán mượt mà không còn bị ngắt quãng bởi thông báo!"
+        </p>
+        <button class="btn-start" onclick="startGame()">BẮT ĐẦU BÁN HÀNG 🍡</button>
+    </div>
+
+    <div id="debt-modal" style="display: none;">
+        <h2>📖 KHÁCH QUEN XIN GHI SỔ NỢ!</h2>
+        <p id="debt-text">"Chỗ quen biết ăn hoài, nay tui thiếu chút tiền... Cho nợ mai trả nha!"</p>
+        <button class="btn-start" onclick="resolveDebt(true)" style="background: #22c55e; margin-bottom: 10px;">🤝 CHO NỢ (Tăng +10 Uy Tín ⭐)</button>
+        <button class="btn-start" onclick="resolveDebt(false)" style="background: #ef4444;">❌ TUYỆT ĐỐI KHÔNG (Khách bỏ đi)</button>
+    </div>
+
+    <div id="night-modal" style="display: none;">
+        <h2>🌙 HẾT GIỜ BÁN HÀNG!</h2>
+        <p id="night-summary-txt">Đã 22:00 tối rồi, dọn xe thôi bro!</p>
+        <p style="color: #ef4444; font-weight: bold;">
+            ⚠️ Trong đĩa còn <span id="leftover-count">0</span> món tồn kho qua đêm!<br>
+            Nếu giữ lại bán hôm sau, có nguy cơ khách bị đau bụng!
+        </p>
+        <button class="btn-start" onclick="finishDay(true)" style="background: #ef4444; margin-bottom: 10px;">🗑️ VỨT BỎ HÀNG CŨ (An toàn)</button>
+        <button class="btn-start" onclick="finishDay(false)" style="background: #64748b;">📦 GIỮ LẠI BÁN TIẾP (Liều ăn nhiều)</button>
+    </div>
+
+    <div id="auto-banner">Thông báo tự trôi...</div>
+
+    <header>
+        <span>🍡 CÁ VIÊN SINH VIÊN - HD</span>
+        <span class="clock-badge">📅 Ngày <span id="day-txt">1</span> | 🕒 <span id="clock-txt">06:00</span></span>
+    </header>
+    <div id="stats">
+        <div>💰 <span id="money">0</span>đ</div>
+        <div>⭐ <span id="rep">50</span></div>
+        <div>🎯 Đơn: <span id="served">0</span></div>
+        <div>📖 Nợ: <span id="debt-count">0</span>đ</div>
+        <div>☣ Cũ: <span id="old-count" class="old-food-badge">0</span></div>
+    </div>
+    <div id="story-box">
+        <b>Chương 1:</b> 06:00 - Bình minh lên, vặn bếp dầu sôi đón đợt khách đầu tiên...
+    </div>
+    
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="controls">
+        <button class="btn" onclick="addFood('Cá Viên')">🍡 Cá Viên (15k)</button>
+        <button class="btn" onclick="addFood('Bò Viên')">🧆 Bò Viên (20k)</button>
+        <button class="btn" onclick="addFood('Tôm Viên')">🍤 Tôm Viên (20k)</button>
+        <button class="btn" onclick="addFood('Xúc Xích')">🌭 Xúc Xích (25k)</button>
+        <button class="btn btn-full" onclick="addComboMet()" style="background: linear-gradient(to bottom, #f59e0b, #d97706); border-color: #fef08a; box-shadow: 0 3px #b45309;">🍱 Mẹt Thập Cẩm (50k)</button>
+        <button class="btn" onclick="clearPlate()" style="background: linear-gradient(to bottom, #64748b, #475569); border-color: #94a3b8; box-shadow: 0 3px #334155;">🗑 Trút đĩa</button>
+        <button class="btn btn-serve" onclick="serveCustomer()">🍽 PHỤC VỤ</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let logicalWidth = 300;
+    let logicalHeight = 400;
+
+    function resizeCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        logicalWidth = canvas.clientWidth;
+        logicalHeight = canvas.clientHeight;
+
+        canvas.width = logicalWidth * dpr;
+        canvas.height = logicalHeight * dpr;
+
+        ctx.resetTransform();
+        ctx.scale(dpr, dpr);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    let money = 0;
+    let reputation = 50;
+    let servedCount = 0;
+    let totalDebt = 0;
+    let gameStarted = false;
+    let isWaitingForNextCustomer = false;
+
+    let oldFoodCount = 0;
+    let pendingDebtAmount = 0;
+    let lastCustomerId = null;
+
+    let currentDay = 1;
+    let currentHour = 6;
+    let currentMinute = 0;
+    let smokeParticles = [];
+    let oilBubbles = [];
+    let floatingTexts = [];
+    let bannerTimer = null;
+
+    for(let i=0; i<12; i++) {
+        oilBubbles.push({
+            x: Math.random(),
+            y: Math.random(),
+            r: 1.5 + Math.random() * 2.5,
+            speed: 0.02 + Math.random() * 0.03
+        });
+    }
+
+    let customerVisitHistory = {
+        'sv_nam': 0, 'sv_nu': 0, 'xe_om': 0, 'phu_huynh': 0, 'hs_cap1': 0, 'nhom_hs': 0
+    };
+
+    let dailyDebtTracker = {};
+
+    const MENU = {
+        'Cá Viên': { icon: '🍡', price: 15000, color: '#f8fafc' },
+        'Bò Viên': { icon: '🧆', price: 20000, color: '#582f0e' },
+        'Tôm Viên': { icon: '🍤', price: 20000, color: '#ea580c' },
+        'Xúc Xích': { icon: '🌭', price: 25000, color: '#dc2626' }
+    };
+
+    const REGULAR_CUSTOMERS = [
+        { id: "sv_nam", name: "Sinh viên Nam", hairColor: "#1e293b", shirtColor: "#0284c7", pantsColor: "#334155", skinColor: "#fde047", hairType: 1 },
+        { id: "sv_nu", name: "Sinh viên Nữ", hairColor: "#c2410c", shirtColor: "#ec4899", pantsColor: "#1e1b4b", skinColor: "#fef08a", hairType: 2 },
+        { id: "xe_om", name: "Bác Xe Ôm", hairColor: "#475569", shirtColor: "#16a34a", pantsColor: "#1e293b", skinColor: "#fb923c", hasHat: true, hairType: 3 },
+        { id: "phu_huynh", name: "Phụ Huynh & Con", hairColor: "#6b21a8", shirtColor: "#0d9488", pantsColor: "#334155", skinColor: "#fef08a", isParent: true, hairType: 1 },
+        { id: "hs_cap1", name: "Học Sinh Cấp 2", hairColor: "#0369a1", shirtColor: "#16a34a", pantsColor: "#1e293b", skinColor: "#fde047", hairType: 1 }
+    ];
+
+    const STUDENT_GROUP = { id: "nhom_hs", name: "Nhóm HS Ăn Chung Mẹt", hairColor: "#0f172a", shirtColor: "#38bdf8", pantsColor: "#1e293b", skinColor: "#fef08a", isGroup: true, hairType: 1 };
+    const RICH_CUSTOMER = { id: "dai_gia", name: "Đại Gia Bí Ẩn", hairColor: "#64748b", shirtColor: "#ca8a04", pantsColor: "#0f172a", hatColor: "#1e293b", skinColor: "#f59e0b", isRich: true, hairType: 3 };
+
+    let currentPlate = [];
+    let currentCustomer = null;
+
+    function addFloatingText(text, x, y, color = '#facc15') {
+        floatingTexts.push({
+            text: text,
+            x: x,
+            y: y,
+            color: color,
+            alpha: 1.0,
+            dy: -0.8
+        });
+    }
+
+    function showBanner(text, duration = 2200) {
+        const banner = document.getElementById('auto-banner');
+        banner.innerHTML = text;
+        banner.classList.add('show');
+
+        if (bannerTimer) clearTimeout(bannerTimer);
+        bannerTimer = setTimeout(() => {
+            banner.classList.remove('show');
+        }, duration);
+    }
+
+    function startGame() {
+        document.getElementById('intro-modal').style.display = 'none';
+        gameStarted = true;
+        resizeCanvas();
+        createCustomer();
+        updateUI();
+        gameLoop();
+    }
+
+    function createCustomer() {
+        let selectedStyle;
+        let isRich = false;
+        let isGroup = false;
+
+        const isRushHour = (currentHour === 11 || currentHour === 17);
+
+        if (totalDebt > 0 && Math.random() < 0.20) {
+            const payBack = Math.min(totalDebt, 20000);
+            totalDebt -= payBack;
+            money += payBack;
+            addFloatingText(`+${payBack.toLocaleString()}đ (Trả nợ)`, logicalWidth / 2, logicalHeight * 0.35, '#4ade80');
+            showBanner(`🎉 Khách cũ quay lại trả nợ: +${payBack.toLocaleString()}đ!`);
+        }
+
+        do {
+            const rand = Math.random();
+
+            if (rand < 0.12) {
+                selectedStyle = RICH_CUSTOMER;
+                isRich = true;
+                isGroup = false;
+            } else if (rand < 0.25) {
+                selectedStyle = STUDENT_GROUP;
+                isGroup = true;
+                isRich = false;
+            } else {
+                selectedStyle = REGULAR_CUSTOMERS[Math.floor(Math.random() * REGULAR_CUSTOMERS.length)];
+                isRich = false;
+                isGroup = false;
+            }
+        } while (lastCustomerId === 'dai_gia' && selectedStyle.id === 'dai_gia');
+
+        lastCustomerId = selectedStyle.id;
+
+        let order = [];
+        if (isGroup || isRich) {
+            order = ['Cá Viên', 'Bò Viên', 'Tôm Viên', 'Xúc Xích']; 
+        } else {
+            const menuKeys = Object.keys(MENU);
+            const itemAmount = Math.floor(Math.random() * 3) + 1;
+
+            for (let i = 0; i < itemAmount; i++) {
+                const randomItem = menuKeys[Math.floor(Math.random() * menuKeys.length)];
+                order.push(randomItem);
+            }
+        }
+
+        const initialPatience = isRushHour ? 140 : 100;
+
+        currentCustomer = {
+            order: order,
+            maxPatience: initialPatience,
+            patience: initialPatience,
+            style: selectedStyle
+        };
+        isWaitingForNextCustomer = false;
+    }
+
+    function addFood(type) {
+        if (!gameStarted) return;
+        if (currentPlate.length < 5) {
+            currentPlate.push(type);
+        }
+    }
+
+    function addComboMet() {
+        if (!gameStarted) return;
+        currentPlate = ['Cá Viên', 'Bò Viên', 'Tôm Viên', 'Xúc Xích'];
+    }
+
+    function clearPlate() {
+        if (!gameStarted) return;
+        currentPlate = [];
+    }
+
+    function serveCustomer() {
+        if (!gameStarted || !currentCustomer || isWaitingForNextCustomer) return;
+
+        const isCorrect = checkOrderMatch(currentPlate, currentCustomer.order);
+
+        if (isCorrect) {
+            const customerId = currentCustomer.style.id;
+
+            if (customerId && customerVisitHistory[customerId] !== undefined) {
+                customerVisitHistory[customerId]++;
+            }
+
+            if (oldFoodCount > 0 && Math.random() < 0.35) {
+                const medicalFee = 300000;
+                money = Math.max(0, money - medicalFee);
+                reputation = Math.max(0, reputation - 20);
+                oldFoodCount = Math.max(0, oldFoodCount - currentPlate.length);
+                
+                addFloatingText(`-${medicalFee.toLocaleString()}đ (Viện phí)`, logicalWidth / 2, logicalHeight * 0.38, '#ef4444');
+                showBanner(`💥 Khách ăn đồ cũ bị đau bụng! Đền viện phí: -300k, -20 Uy tín!`);
+                nextCustomer();
+                return;
+            }
+
+            let earnings = 0;
+            currentPlate.forEach(item => earnings += MENU[item].price);
+
+            if (oldFoodCount > 0) oldFoodCount = Math.max(0, oldFoodCount - currentPlate.length);
+
+            const visitCount = customerVisitHistory[customerId] || 0;
+            const isRegularCustomer = visitCount >= 3;
+            const hasAlreadyBorrowedToday = dailyDebtTracker[customerId] === true;
+
+            let canAskDebt = isRegularCustomer && !hasAlreadyBorrowedToday && !currentCustomer.style.isRich;
+
+            if (canAskDebt && Math.random() < 0.30) {
+                pendingDebtAmount = 10000;
+                dailyDebtTracker[customerId] = true;
+
+                document.getElementById('debt-text').innerText = `"${currentCustomer.style.name} (Khách quen ghé ${visitCount} lần): Nay quên mang đủ bóp, gom được ${(earnings - pendingDebtAmount).toLocaleString()}đ... Cho thiếu ${pendingDebtAmount.toLocaleString()}đ mai trả nha anh/chị!"`;
+                document.getElementById('debt-modal').style.display = 'flex';
+                gameStarted = false;
+                return;
+            }
+
+            if (currentCustomer.style.isRich) {
+                const bonus = 200000;
+                const total = earnings + bonus;
+                money += total;
+                reputation = Math.min(100, reputation + 15);
+                addFloatingText(`+${total.toLocaleString()}đ (Bo khủng!)`, logicalWidth / 2, logicalHeight * 0.38, '#facc15');
+                showBanner(`💎 Đại Gia vừa lòng tặng tiền bo khủng!`);
+            } else if (currentCustomer.style.isGroup) {
+                money += earnings;
+                reputation = Math.min(100, reputation + 5);
+                addFloatingText(`+${earnings.toLocaleString()}đ (+5 ⭐)`, logicalWidth / 2, logicalHeight * 0.38, '#38bdf8');
+            } else {
+                money += earnings;
+                reputation = Math.min(100, reputation + 5);
+                addFloatingText(`+${earnings.toLocaleString()}đ`, logicalWidth / 2, logicalHeight * 0.38, '#4ade80');
+            }
+
+            nextCustomer();
+        } else {
+            reputation = Math.max(0, reputation - 10);
+            addFloatingText(`❌ Sai món rồi! (-10 ⭐)`, logicalWidth / 2, logicalHeight * 0.38, '#f87171');
+            nextCustomer();
+        }
+    }
+
+    function resolveDebt(accepted) {
+        document.getElementById('debt-modal').style.display = 'none';
+        gameStarted = true;
+
+        let earnings = 0;
+        currentPlate.forEach(item => earnings += MENU[item].price);
+
+        if (accepted) {
+            money += (earnings - pendingDebtAmount);
+            totalDebt += pendingDebtAmount;
+            reputation = Math.min(100, reputation + 10);
+            addFloatingText(`+${(earnings - pendingDebtAmount).toLocaleString()}đ (+10 ⭐)`, logicalWidth / 2, logicalHeight * 0.38, '#38bdf8');
+            showBanner(`🤝 Cho nợ 10k! Khách hẹn ngày mai trả.`);
+        } else {
+            reputation = Math.max(0, reputation - 5);
+            addFloatingText(`❌ Khách bỏ đi (-5 ⭐)`, logicalWidth / 2, logicalHeight * 0.38, '#f87171');
+        }
+
+        nextCustomer();
+    }
+
+    function nextCustomer() {
+        servedCount++;
+        currentPlate = [];
+        currentCustomer = null;
+        isWaitingForNextCustomer = true;
+        updateUI();
+
+        setTimeout(() => {
+            if (gameStarted) {
+                createCustomer();
+                updateUI();
+            }
+        }, 800);
+    }
+
+    function checkOrderMatch(plate, order) {
+        if (plate.length !== order.length) return false;
+        return [...plate].sort().join() === [...order].sort().join();
+    }
+
+    function updateUI() {
+        document.getElementById('money').innerText = money.toLocaleString();
+        document.getElementById('rep').innerText = reputation;
+        document.getElementById('served').innerText = servedCount;
+        document.getElementById('day-txt').innerText = currentDay;
+        document.getElementById('debt-count').innerText = totalDebt.toLocaleString();
+        document.getElementById('old-count').innerText = oldFoodCount;
+        
+        const hh = currentHour < 10 ? '0' + currentHour : currentHour;
+        const mm = currentMinute < 10 ? '0' + currentMinute : currentMinute;
+        document.getElementById('clock-txt').innerText = `${hh}:${mm}`;
+    }
+
+    function advanceTime() {
+        if (!gameStarted) return;
+        currentMinute += 10;
+        if (currentMinute >= 60) {
+            currentMinute = 0;
+            currentHour++;
+        }
+
+        if (currentHour === 22 && currentMinute === 0) {
+            gameStarted = false;
+            document.getElementById('leftover-count').innerText = currentPlate.length;
+            document.getElementById('night-summary-txt').innerHTML = `<b>KẾT THÚC NGÀY ${currentDay}</b><br>🎯 Đơn chốt: ${servedCount}<br>💰 Tiền mặt: ${money.toLocaleString()}đ<br>📖 Tiền nợ còn lại: ${totalDebt.toLocaleString()}đ`;
+            document.getElementById('night-modal').style.display = 'flex';
+        }
+        updateUI();
+    }
+
+    function finishDay(throwAway) {
+        if (throwAway) {
+            currentPlate = [];
+            showBanner("🗑️ Đã vứt sạch đồ thừa cho an toàn!");
+        } else {
+            oldFoodCount += currentPlate.length;
+            currentPlate = [];
+            showBanner(`⚠ Giữ lại ${oldFoodCount} món cũ bán tiếp!`);
+        }
+
+        document.getElementById('night-modal').style.display = 'none';
+        currentDay++;
+        currentHour = 6;
+        currentMinute = 0;
+        
+        dailyDebtTracker = {};
+
+        gameStarted = true;
+        createCustomer();
+        updateUI();
+    }
+
+    function draw() {
+        const W = logicalWidth;
+        const H = logicalHeight;
+        ctx.clearRect(0, 0, W, H);
+
+        // Nền trời thay đổi theo thời gian
+        let skyGradient;
+        if (currentHour >= 6 && currentHour < 16) {
+            skyGradient = ctx.createLinearGradient(0, 0, 0, H * 0.32);
+            skyGradient.addColorStop(0, '#38bdf8');
+            skyGradient.addColorStop(1, '#bae6fd');
+        } else if (currentHour >= 16 && currentHour < 18) {
+            skyGradient = ctx.createLinearGradient(0, 0, 0, H * 0.32);
+            skyGradient.addColorStop(0, '#ea580c');
+            skyGradient.addColorStop(1, '#fed7aa');
+        } else {
+            skyGradient = ctx.createLinearGradient(0, 0, 0, H * 0.32);
+            skyGradient.addColorStop(0, '#0f172a');
+            skyGradient.addColorStop(1, '#1e293b');
+        }
+        ctx.fillStyle = skyGradient;
+        ctx.fillRect(0, 0, W, H * 0.32);
+
+        // Hàng rào/Bức tường phía sau
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(0, H * 0.28, W, H * 0.08);
+        ctx.fillStyle = '#475569';
+        for (let x = 0; x < W; x += 20) {
+            ctx.fillRect(x, H * 0.28, 2, H * 0.08);
+        }
+
+        // Mặt đường
+        let roadGrad = ctx.createLinearGradient(0, H * 0.36, 0, H * 0.50);
+        roadGrad.addColorStop(0, '#94a3b8');
+        roadGrad.addColorStop(1, '#64748b');
+        ctx.fillStyle = roadGrad;
+        ctx.fillRect(0, H * 0.36, W, H * 0.14);
+
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(0, H * 0.36, W, 2);
+
+        // KHÁCH HÀNG
+        if (currentCustomer && gameStarted) {
+            const custX = W / 2;
+            const custY = H * 0.49;
+            drawDetailedCustomer(currentCustomer, custX, custY);
+        }
+
+        // Xe bán hàng & Mặt quầy
+        let cartTop = H * 0.46;
+
+        let cartGrad = ctx.createLinearGradient(0, cartTop, 0, H);
+        cartGrad.addColorStop(0, '#1e293b');
+        cartGrad.addColorStop(0.3, '#334155');
+        cartGrad.addColorStop(1, '#0f172a');
+        ctx.fillStyle = cartGrad;
+        ctx.fillRect(0, cartTop, W, H - cartTop);
+
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(0, cartTop, W, 3);
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(0, cartTop + 3, W, 5);
+
+        // Chảo dầu sôi
+        let potX = W * 0.26;
+        let potY = cartTop + 22;
+
+        ctx.fillStyle = '#475569';
+        ctx.beginPath();
+        ctx.ellipse(potX, potY, W * 0.18, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#d97706';
+        ctx.beginPath();
+        ctx.ellipse(potX, potY, W * 0.15, 9, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bong bóng dầu
+        oilBubbles.forEach(b => {
+            b.y -= b.speed;
+            if (b.y < 0) b.y = 1;
+            let bx = (potX - W * 0.1) + b.x * (W * 0.2);
+            let by = (potY - 5) + b.y * 10;
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath();
+            ctx.arc(bx, by, b.r, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // Hạt khói bay
+        if (Math.random() < 0.4) {
+            smokeParticles.push({
+                x: (potX - 15) + Math.random() * 30,
+                y: potY - 4,
+                r: 3 + Math.random() * 3,
+                alpha: 0.6
+            });
+        }
+        smokeParticles.forEach((p, idx) => {
+            ctx.fillStyle = `rgba(241, 245, 249, ${p.alpha})`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+            p.y -= 0.7;
+            p.r += 0.1;
+            p.alpha -= 0.015;
+            if (p.alpha <= 0) smokeParticles.splice(idx, 1);
+        });
+
+        // Đĩa cá viên
+        let plateX = W * 0.74;
+        let plateY = cartTop + 22;
+
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.beginPath();
+        ctx.ellipse(plateX + 2, plateY + 3, W * 0.18, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.ellipse(plateX, plateY, W * 0.18, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        ctx.fillStyle = '#f1f5f9';
+        ctx.beginPath();
+        ctx.ellipse(plateX, plateY, W * 0.14, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Món ăn trên đĩa (có que xiên)
+        const totalItems = currentPlate.length;
+        const spacing = 16; 
+        const startX = plateX - ((totalItems - 1) * spacing) / 2;
+
+        currentPlate.forEach((item, index) => {
+            let px = startX + (index * spacing);
+            let py = plateY;
+
+            ctx.strokeStyle = '#b45309';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(px - 5, py + 8);
+            ctx.lineTo(px + 5, py - 8);
+            ctx.stroke();
+
+            for (let b = -1; b <= 1; b++) {
+                let bx = px + (b * 3.5);
+                let by = py - (b * 3.5);
+
+                ctx.fillStyle = MENU[item] ? MENU[item].color : '#ffffff';
+                ctx.beginPath();
+                ctx.arc(bx, by, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 0.8;
+                ctx.stroke();
+
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                ctx.beginPath();
+                ctx.arc(bx - 1.5, by - 1.5, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        });
+
+        // Tủ kính & Bảng thực đơn bên dưới
+        let cabinetY = cartTop + 40;
+        let cabinetH = H - cabinetY - 6;
+
+        if (cabinetH > 30) {
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 1.5;
+            roundRect(ctx, W * 0.05, cabinetY, W * 0.9, cabinetH, 8, true, true);
+
+            ctx.fillStyle = '#ea580c';
+            roundRect(ctx, W * 0.08, cabinetY + 6, W * 0.84, 22, 6, true, false);
+            
+            ctx.fillStyle = '#fef08a';
+            ctx.font = 'bold 11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('✨ CÁ VIÊN CHIÊN SINH VIÊN ✨', W / 2, cabinetY + 20);
+
+            let skewY = cabinetY + 34;
+            const sampleFoods = [{ icon: '🍡' }, { icon: '🧆' }, { icon: '🍤' }, { icon: '🌭' }];
+            let sampleX = W * 0.16;
+            let gap = W * 0.23;
+
+            sampleFoods.forEach((food, idx) => {
+                let posX = sampleX + (idx * gap);
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillRect(posX, skewY, 2, 26);
+
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = '14px Arial';
+                ctx.fillText(food.icon, posX, skewY + 14);
+            });
+
+            let menuY = skewY + 32;
+            let menuH = cabinetY + cabinetH - menuY - 6;
+
+            if (menuH > 20) {
+                ctx.fillStyle = 'rgba(30, 41, 59, 0.85)';
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 1;
+                roundRect(ctx, W * 0.08, menuY, W * 0.84, menuH, 6, true, true);
+
+                ctx.fillStyle = '#facc15';
+                ctx.font = 'bold 10px Arial';
+                ctx.fillText('📋 BẢNG THỰC ĐƠN', W / 2, menuY + 13);
+
+                ctx.font = '9.5px Arial';
+                const itemsList = [
+                    '🍡 Cá Viên: 15.000đ',
+                    '🧆 Bò Viên: 20.000đ',
+                    '🍤 Tôm Viên: 20.000đ',
+                    '🌭 Xúc Xích: 25.000đ',
+                    '🍱 Mẹt Thập Cẩm: 50.000đ'
+                ];
+
+                let startLineY = menuY + 26;
+                let lineGap = Math.min(14, (menuH - 30) / 5);
+
+                itemsList.forEach((item, i) => {
+                    if (startLineY + (i * lineGap) < menuY + menuH - 2) {
+                        ctx.fillStyle = (i === 4) ? '#f97316' : '#cbd5e1';
+                        ctx.fillText(item, W / 2, startLineY + (i * lineGap));
+                    }
+                });
+            }
+
+            ctx.textAlign = 'left';
+        }
+
+        // Vẽ chữ bay Floating Text
+        floatingTexts.forEach((ft, i) => {
+            ctx.save();
+            ctx.globalAlpha = ft.alpha;
+            ctx.fillStyle = ft.color;
+            ctx.font = 'bold 15px Arial';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = '#000';
+            ctx.shadowBlur = 4;
+            ctx.fillText(ft.text, ft.x, ft.y);
+            ctx.restore();
+
+            ft.y += ft.dy;
+            ft.alpha -= 0.02;
+
+            if (ft.alpha <= 0) {
+                floatingTexts.splice(i, 1);
+            }
+        });
+    }
+
+    // Vẽ nhân vật chi tiết HD (Đã tích hợp vẽ thêm bạn cho Nhóm HS)
+    function drawDetailedCustomer(c, x, y) {
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(x, y, 22, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 1. Phụ huynh: Vẽ bé con đi cùng
+        if (c.style.isParent) {
+            drawCharacter(x - 30, y, 0.9, '#fef08a', '#0d9488', '#334155', '#6b21a8', 1, c.patience < 30);
+        }
+
+        // 2. Nhóm HS: Vẽ thêm 2 bạn đi chung
+        if (c.style.isGroup) {
+            drawCharacter(x - 28, y - 2, 1.25, '#fde047', '#ea580c', '#1e293b', '#0284c7', 2, c.patience < 30);
+            drawCharacter(x + 28, y - 2, 1.25, '#fb923c', '#16a34a', '#334155', '#dc2626', 3, c.patience < 30, true, '#1e293b');
+        }
+
+        // Nhân vật chính đứng giữa
+        drawCharacter(x, y, 1.45, c.style.skinColor, c.style.shirtColor, c.style.pantsColor || '#334155', c.style.hairColor, c.style.hairType || 1, c.patience < 30, c.style.hasHat, c.style.hatColor);
+
+        // Khung yêu cầu món ăn
+        const boxW = logicalWidth * 0.88;
+        const boxH = 30;
+        const boxX = (logicalWidth - boxW) / 2;
+        const boxY = y - 130;
+
+        ctx.fillStyle = c.style.isRich ? '#fef08a' : '#ffffff';
+        ctx.strokeStyle = c.style.isRich ? '#ca8a04' : '#0284c7';
+        ctx.lineWidth = 2;
+        roundRect(ctx, boxX, boxY, boxW, boxH, 8, true, true);
+
+        ctx.fillStyle = c.style.isRich ? '#fef08a' : '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(x - 5, boxY + boxH);
+        ctx.lineTo(x + 5, boxY + boxH);
+        ctx.lineTo(x, boxY + boxH + 5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = c.style.isRich ? '#ca8a04' : '#0284c7';
+        ctx.stroke();
+
+        const visits = customerVisitHistory[c.style.id] || 0;
+        const badge = visits >= 3 ? "⭐" : "";
+        
+        let orderTxt = c.order.length === 4 && checkOrderMatch(c.order, ['Cá Viên', 'Bò Viên', 'Tôm Viên', 'Xúc Xích'])
+            ? '🍱 Mẹt Thập Cẩm'
+            : c.order.map(item => MENU[item].icon + " " + item).join(' | ');
+
+        const txt = `[${c.style.name} ${badge}]: ` + orderTxt;
+        
+        let fontSize = 11;
+        if (txt.length > 32) fontSize = 9;
+
+        ctx.fillStyle = '#0f172a';
+        ctx.font = `bold ${fontSize}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText(txt, boxX + (boxW / 2), boxY + 19);
+        ctx.textAlign = 'left';
+
+        // Thanh kiên nhẫn
+        const barW = 50;
+        const barH = 4;
+        const barX = x - (barW / 2);
+        const barY = boxY + boxH + 7;
+
+        ctx.fillStyle = '#334155';
+        roundRect(ctx, barX - 1, barY - 1, barW + 2, barH + 2, 2, true, false);
+
+        ctx.fillStyle = '#ef4444';
+        roundRect(ctx, barX, barY, barW, barH, 2, true, false);
+
+        const currentW = Math.max(0, Math.min(barW, (c.patience / c.maxPatience) * barW));
+        if (currentW > 0) {
+            ctx.fillStyle = c.patience > 40 ? '#22c55e' : '#f59e0b';
+            roundRect(ctx, barX, barY, currentW, barH, 2, true, false);
+        }
+    }
+
+    // Vẽ từng bộ phận nhân vật (Tóc, Mắt, Áo, Mũ)
+    function drawCharacter(x, y, scale, skin, shirt, pants, hair, hairType, isAngry, hasHat = false, hatColor = '#1e293b') {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+
+        ctx.fillStyle = pants;
+        ctx.fillRect(-7, -18, 5, 18);
+        ctx.fillRect(2, -18, 5, 18);
+
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(-9, -3, 7, 3);
+        ctx.fillRect(2, -3, 7, 3);
+
+        ctx.fillStyle = shirt;
+        ctx.beginPath();
+        ctx.moveTo(-13, -18);
+        ctx.lineTo(13, -18);
+        ctx.lineTo(15, -44);
+        ctx.lineTo(-15, -44);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = skin;
+        ctx.fillRect(-4, -48, 8, 5);
+
+        ctx.beginPath();
+        ctx.arc(0, -58, 13, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = hair;
+        if (hairType === 1) { 
+            ctx.beginPath();
+            ctx.arc(0, -61, 14, Math.PI, 0, false);
+            ctx.fill();
+        } else if (hairType === 2) { 
+            ctx.beginPath();
+            ctx.arc(0, -60, 14, Math.PI, 0, false);
+            ctx.fillRect(-14, -60, 28, 16);
+            ctx.fill();
+        } else { 
+            ctx.beginPath();
+            ctx.arc(0, -61, 14, Math.PI * 0.8, Math.PI * 0.2, false);
+            ctx.fill();
+        }
+
+        if (hasHat) {
+            ctx.fillStyle = hatColor;
+            ctx.fillRect(-16, -70, 32, 3);
+            ctx.fillRect(-10, -78, 20, 8);
+        }
+
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(-4, -59, 1.6, 0, Math.PI * 2);
+        ctx.arc(4, -59, 1.6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        if (isAngry) {
+            ctx.arc(0, -51, 3, Math.PI, 0, false);
+        } else {
+            ctx.arc(0, -54, 3, 0, Math.PI, false);
+        }
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        if (fill) ctx.fill();
+        if (stroke) ctx.stroke();
+    }
+
+    function gameLoop() {
+        if (currentCustomer && gameStarted && !isWaitingForNextCustomer) {
+            currentCustomer.patience -= 0.08;
+            if (currentCustomer.patience <= 0) {
+                reputation = Math.max(0, reputation - 5);
+                addFloatingText("😤 Đợi lâu quá bỏ đi! (-5 ⭐)", logicalWidth / 2, logicalHeight * 0.38, '#ef4444');
+                nextCustomer();
+            }
+        }
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+
+    setInterval(advanceTime, 2500);
+</script>
+
+</body>
+</html>
